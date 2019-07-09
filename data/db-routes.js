@@ -37,4 +37,22 @@ route.get('/:id', async (req, res) => {
    }
 })
 
+// get comments by id
+route.get('/:id/comments', async (req, res) => {
+   const { id } = req.params;
+   try {
+      const posts = await Posts.findById(id);
+      if (id && posts.length !== 0) {
+         const comments = await Posts.findPostComments(id)
+         res.status(200).json(comments);
+      } else {
+         res.status(404).json({ message: "We found something on that id, but it disappeared into the blackHole!" })
+      }
+   } catch (error) {
+      res.status(500).json({
+         error: "The posts information could not be retrieved."
+      })
+   }
+})
+
 module.exports = route;
