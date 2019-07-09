@@ -55,4 +55,24 @@ route.get('/:id/comments', async (req, res) => {
    }
 })
 
+// create a new post
+route.post('/', async (req, res) => {
+   try {
+      const { title, contents } = req.body;
+      if (title && contents) {
+         const newPostId = await Posts.insert(req.body)
+         const post = await Posts.findById(newPostId.id)
+         res.status(201).json({post})
+      } else {
+         res.status(400).json({
+            errorMessage: "Please provide title and contents for the post."
+         })
+      }
+   } catch {
+      res.status(500).json({
+         error: "There was an error while saving the post to the database"
+      })
+   }
+})
+
 module.exports = route;
