@@ -62,13 +62,65 @@ route.post('/', async (req, res) => {
       if (title && contents) {
          const newPostId = await Posts.insert(req.body)
          const post = await Posts.findById(newPostId.id)
-         res.status(201).json({post})
+         res.status(201).json({ post })
       } else {
          res.status(400).json({
             errorMessage: "Please provide title and contents for the post."
          })
       }
    } catch {
+      res.status(500).json({
+         error: "There was an error while saving the post to the database"
+      })
+   }
+})
+
+// create a new comment to a post
+route.post('/:id/comments', async (req, res) => {
+   try {
+      const { id } = req.params;
+      const posts = await Posts.findById(id);
+      if (id && posts.length !== 0) {
+         const { text } = req.body;
+         if (text) {
+            const newCommentId = await Posts.insertComment(req.body.text)
+            const comment = await Posts.findCommentById(newCommentId.id)
+            res.status(201).json({ comment })
+         } else {
+            res.status(400).json({
+               errorMessage: "Please provide text for the comment."
+            })
+         }
+      } else {
+         res.status(404).json({
+            message: "The post with the specified ID does not exist."
+         })
+      }
+
+   } catch {
+      res.status(500).json({
+         error: "There was an error while saving the post to the database"
+      })
+   }
+})
+
+// delete a post
+route.delete('/:id', async (req, res) => {
+   try {
+      const { id } = req.params;
+      const posts = await Posts.findById(id);
+      if (id && posts.length !== 0) {
+         const RemovedPost = await Posts.remove(id);
+         // find remaining posts and send back as reponse
+         const posts = await Posts.find()
+         res.status(200).json({ posts })
+      } else {
+         res.status(404).json({
+            message: "The post with the specified ID does not exist."
+         })
+      }
+   }
+   catch {
       res.status(500).json({
          error: "There was an error while saving the post to the database"
       })
