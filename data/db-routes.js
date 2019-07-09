@@ -83,9 +83,9 @@ route.post('/:id/comments', async (req, res) => {
       if (id && posts.length !== 0) {
          const { text } = req.body;
          if (text) {
-            const newCommentId = await Posts.insertComment(req.body)
-            // const comment = await Posts.findCommentById(newCommentId.id)
-            res.status(201).json({ newCommentId })
+            const newCommentId = await Posts.insertComment({ ...req.body, post_id: id })
+            const comment = await Posts.findCommentById(newCommentId.id)
+            res.status(201).json({ comment })
          } else {
             res.status(400).json({
                errorMessage: "Please provide text for the comment."
