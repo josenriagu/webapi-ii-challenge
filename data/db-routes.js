@@ -83,9 +83,9 @@ route.post('/:id/comments', async (req, res) => {
       if (id && posts.length !== 0) {
          const { text } = req.body;
          if (text) {
-            const newCommentId = await Posts.insertComment(req.body.text)
-            const comment = await Posts.findCommentById(newCommentId.id)
-            res.status(201).json({ comment })
+            const newCommentId = await Posts.insertComment(req.body)
+            // const comment = await Posts.findCommentById(newCommentId.id)
+            res.status(201).json({ newCommentId })
          } else {
             res.status(400).json({
                errorMessage: "Please provide text for the comment."
@@ -96,7 +96,34 @@ route.post('/:id/comments', async (req, res) => {
             message: "The post with the specified ID does not exist."
          })
       }
+   } catch {
+      res.status(500).json({
+         error: "There was an error while saving the post to the database"
+      })
+   }
+})
 
+// edit a post
+route.put('/:id', async (req, res) => {
+   try {
+      const { id } = req.params;
+      const posts = await Posts.findById(id);
+      if (id && posts.length !== 0) {
+         const { title, contents } = req.body;
+         if (title && contents) {
+            const updatedPostId = await Posts.update(id, req.body);
+            const updatedPost = await Posts.findById(id);
+            res.status(200).json(updatedPost)
+         } else {
+            res.status(400).json({
+               errorMessage: "Please provide title and contents for the post."
+            })
+         }
+      } else {
+         res.status(404).json({
+            message: "The post with the specified ID does not exist."
+         })
+      }
    } catch {
       res.status(500).json({
          error: "There was an error while saving the post to the database"
